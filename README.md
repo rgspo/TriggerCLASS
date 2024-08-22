@@ -1,120 +1,51 @@
-CLASS: Cosmic Linear Anisotropy Solving System  {#mainpage}
+TriggerCLASS
 ==============================================
+forked from CLASS by Julien Lesgourgues and Thomas Tram; see http://class-code.net and https://github.com/lesgourg/class_public
 
-Authors: Julien Lesgourgues, Thomas Tram, Nils Schoeneberg
+TriggerCLASS is a modification of CLASS that implements an instant phase transition in a new fluid component that goes from a cosmological constant phase to a decaying phase. The transition is triggered by a sub-dominant clock field that carries adiabatic fluctiations. As such, it describes the physics of the New Early Dark Energy (NEDE) and Hybrid Early Dark Energy model. The details of the implementation have been explained in the methodology part of https://arxiv.org/abs/2006.06686 and through many additional comments in the code tagged with "NEDE".
 
-with several major inputs from other people, especially Benjamin
-Audren, Simon Prunet, Jesus Torrado, Miguel Zumalacarregui, Francesco
-Montanari, Deanna Hooper, Samuel Brieden, Daniel Meinert, Matteo Lucca, etc.
+The version used for the publications ArXiv: 1910.10739, 2006.06686, 2009.00006 has been tagged with "NewEDEv3.0".
+The version used for the publication ArXiv: 2209.02708 has been tagged with "NewEDEv4".
 
-For download and information, see http://class-code.net
+__New in version 7.0 [31 July 2024]__: Rebased TriggerCLASS on version 3.2.1 of class_public with the SHA 997d1ac0b64d11439948a0cc13f719ef427f87be (older versions of TriggerCLASS are based on the older version 2 of class_public). This comes with the following modifications:
+* New precision parameters: In CLASS versions >3, the implicit ndf15 integrator is used for the background evolution. This automatically increases precision around the NEDE decay time, so the precision parameters "decay_res_enhancement" and "trigger_resolution" have been removed.
+* Added a background approximation switching logic that splits up the background evolution into two phases (before and after the trigger fluid approximation).
+Ultimately, version 7.0 is faster than v6.1 by a factor of about 10 in the background and between 5 and 8 in the perturbations. The two codes have been tested against each other, and produce similar results in Cls and matter power spectrum to within 5 permille, a difference coming from the LambdaCDM sector difference in the two CLASS codes. with the precision settings given in input/NewEDE.ini and the NEDE notebook in the notebooks directory.
+
+__New in version 6.1 [7 May 2023]__: TriggerCLASS now allows for Omega0_NEDE_trigger_DM as input, controlling the trigger abundance today (which contributes to DM).
+
+__New in version 5 [12 Oct 2022]__: TriggerCLASS now takes the decay redshift z_decay_NEDE (rather than the trigger mass) as input. The trigger mass is then determined via a shooting method.  Output improvments and more detailed comments. 
+
+__New in version 4 [20 Dec 2020]__: TriggerCLASS now accepts f_NEDE as input parameter (replaces Omega_NEDE). Introduced "tracking mode" for which the rest-frame sound speed equals the adiabatic sound speed (this feature has not been tested intensively yet). Output improvments and more detailed comments. 
 
 
-Compiling CLASS and getting started
+Compiling TriggerCLASS and getting started
 -----------------------------------
 
-(the information below can also be found on the webpage, just below
-the download button)
-
-Download the code from the webpage and unpack the archive (tar -zxvf
-class_vx.y.z.tar.gz), or clone it from
-https://github.com/lesgourg/class_public. Go to the class directory
-(cd class/ or class_public/ or class_vx.y.z/) and compile (make clean;
-make class). You can usually speed up compilation with the option -j:
-make -j class. If the first compilation attempt fails, you may need to
-open the Makefile and adapt the name of the compiler (default: gcc),
-of the optimization flag (default: -O4 -ffast-math) and of the OpenMP
-flag (default: -fopenmp; this flag is facultative, you are free to
-compile without OpenMP if you don't want parallel execution; note that
-you need the version 4.2 or higher of gcc to be able to compile with
--fopenmp). Many more details on the CLASS compilation are given on the
-wiki page
+In order to install TriggerCLASS, clone the branch "NewEDEv4" in a new folder and follow the same steps as required for the installation of the base CLASS code detailed in https://github.com/lesgourg/class_public. Also see the Wiki page:
 
 https://github.com/lesgourg/class_public/wiki/Installation
 
-(in particular, for compiling on Mac >= 10.9 despite of the clang
-incompatibility with OpenMP).
+For a successfull compilation adapt the compiler information in "Makefile" and "./python/setup.py".  After compiling it, check that TriggerCLASS has been properly set up by running first
+    
+    ./class input/explanatory.ini
 
-To check that the code runs, type:
+This corresponds to a standard LambdaCDM run. To check that the trigger component works correctly, type:
 
-    ./class explanatory.ini
+    ./class input/NewEDE.ini
 
-The explanatory.ini file is THE reference input file, containing and
-explaining the use of all possible input parameters. We recommend to
-read it, to keep it unchanged (for future reference), and to create
-for your own purposes some shorter input files, containing only the
-input lines which are useful for you. Input files must have a *.ini
-extension. We provide an example of an input file containing a
-selection of the most used parameters, default.ini, that you may use as a
-starting point.
+This should result in a run with a non-vanishing fraction of NEDE. The output should provide a detailed account of the NEDE parameters.
+The NewEDE.ini also explains the NEDE input parameters.
 
-If you want to play with the precision/speed of the code, you can use
-one of the provided precision files (e.g. cl_permille.pre) or modify
-one of them, and run with two input files, for instance:
-
-    ./class test.ini cl_permille.pre
-
-The files *.pre are suppposed to specify the precision parameters for
-which you don't want to keep default values. If you find it more
-convenient, you can pass these precision parameter values in your *.ini
-file instead of an additional *.pre file.
-
-The automatically-generated documentation is located in
-
-    doc/manual/html/index.html
-    doc/manual/CLASS_manual.pdf
-
-On top of that, if you wish to modify the code, you will find lots of
-comments directly in the files.
-
-Python
+MCMC analysis
 ------
 
-To use CLASS from python, or ipython notebooks, or from the Monte
-Python parameter extraction code, you need to compile not only the
-code, but also its python wrapper. This can be done by typing just
-'make' instead of 'make class' (or for speeding up: 'make -j'). More
-details on the wrapper and its compilation are found on the wiki page
-
-https://github.com/lesgourg/class_public/wiki
-
-Plotting utility
-----------------
-
-Since version 2.3, the package includes an improved plotting script
-called CPU.py (Class Plotting Utility), written by Benjamin Audren and
-Jesus Torrado. It can plot the Cl's, the P(k) or any other CLASS
-output, for one or several models, as well as their ratio or percentage
-difference. The syntax and list of available options is obtained by
-typing 'pyhton CPU.py -h'. There is a similar script for MATLAB,
-written by Thomas Tram. To use it, once in MATLAB, type 'help
-plot_CLASS_output.m'
-
-Developing the code
---------------------
-
-If you want to develop the code, we suggest that you download it from
-the github webpage
-
-https://github.com/lesgourg/class_public
-
-rather than from class-code.net. Then you will enjoy all the feature
-of git repositories. You can even develop your own branch and get it
-merged to the public distribution. For related instructions, check
-
-https://github.com/lesgourg/class_public/wiki/Public-Contributing
-
-Using the code
---------------
-
-You can use CLASS freely, provided that in your publications, you cite
-at least the paper `CLASS II: Approximation schemes <http://arxiv.org/abs/1104.2933>`. Feel free to cite more CLASS papers!
+In order to perform a MCMC analysis, we recommend using MontePython, https://github.com/brinckmann/montepython_public, and follow their installation instructions. Our baseline MCMC run (as discussed in https://arxiv.org/abs/2006.06686) can be found under input/run_NEDE_canonical.param. To make it run, you first need to update MontePython with the files from the folder montepython_tree. In particular, this will update the data.py to translate the NEDE input parameters. The corresponding covariance matrix and bestfit file can be found in the respective subfolders covmat and bestfit.
 
 Support
 -------
 
-To get support, please open a new issue on the
+To get support, please open a new issue on
 
-https://github.com/lesgourg/class_public
+https://github.com/NEDE-Cosmo/TriggerCLASS
 
-webpage!
