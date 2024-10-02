@@ -7,7 +7,7 @@ TriggerCLASS is a modification of CLASS that implements an instant phase transit
 The version used for the publications ArXiv: 1910.10739, 2006.06686, 2009.00006 has been tagged with "NewEDEv3.0".
 The version used for the publication ArXiv: 2209.02708 has been tagged with "NewEDEv4".
 
-__New in version 7.0 [31 July 2024]__: Rebased TriggerCLASS on version 3.2.1 of class_public with the SHA 997d1ac0b64d11439948a0cc13f719ef427f87be (older versions of TriggerCLASS are based on the older version 2 of class_public). This comes with the following modifications:
+__New in version 7.0 [31 July 2024]__: Rebased TriggerCLASS on version 3.2.1 of class_public with the SHA 997d1ac0b64d11439948a0cc13f719ef427f87be (older versions of TriggerCLASS are based on the older version 2 of class_public). This comes with the following modifications (thanks to Emil Holm and Thomas Tram):
 * New precision parameters: In CLASS versions >3, the implicit ndf15 integrator is used for the background evolution. This automatically increases precision around the NEDE decay time, so the precision parameters "decay_res_enhancement" and "trigger_resolution" have been removed.
 * Added a background approximation switching logic that splits up the background evolution into two phases (before and after the trigger fluid approximation).
 Ultimately, version 7.0 is faster than v6.1 by a factor of about 10 in the background and between 5 and 8 in the perturbations. The two codes have been tested against each other, and produce similar results in Cls and matter power spectrum to within 5 permille, a difference coming from the LambdaCDM sector difference in the two CLASS codes. with the precision settings given in input/NewEDE.ini and the NEDE notebook in the notebooks directory.
