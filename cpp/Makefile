@@ -2,7 +2,7 @@ CXX = g++
 CFLAGS = -O2 -fopenmp -I../include -I../external/HyRec2020 -I../external/RecfastCLASS -I../external/heating
 CLASSMODULES = ../build/arrays.o ../build/background.o ../build/common.o \
 	../build/dei_rkck.o ../build/distortions.o ../build/energy_injection.o \
-	../build/evolver_ndf15.o ../build/evolver_rkck.o ../build/growTable.o \
+	../build/evolver_ndf15.o ../build/evolver_rkck.o ../build/evolver_rkdp45.o ../build/growTable.o \
 	../build/helium.o ../build/history.o ../build/hydrogen.o \
 	../build/hyperspherical.o ../build/hyrectools.o \
 	../build/injection.o ../build/input.o ../build/lensing.o \
